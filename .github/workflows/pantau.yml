@@ -1,0 +1,34 @@
+name: Pantau Kuota KRS Unimal
+
+on:
+  schedule:
+    - cron: "0 */5 * * *"   # Setiap 5 jam (UTC); script berjalan 4j55m lalu exit
+  workflow_dispatch:          # Bisa dipicu manual dari tab Actions
+
+concurrency:
+  group: pantau-krs           # Satu job aktif sekaligus
+  cancel-in-progress: true    # Job lama langsung dibatalkan jika ada job baru
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355      # 5 jam 55 menit — batas aman sebelum limit 6 jam GH Actions
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Jalankan monitoring kuota
+        env:
+          PHPSESSID:          ${{ secrets.PHPSESSID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python pantau_krs_cloud.py
