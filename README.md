@@ -97,26 +97,38 @@ Setelah pesan tersebut masuk, monitoring cloud sudah aktif.
 
 ---
 
-## ⚙️ Cara Kerja Otomatis
+## ⚙️ Cara Kerja Otomatis — Sistem Estafet
 
 ```
-Cron GitHub Actions (setiap 5 jam UTC)
+Cron GitHub Actions (tiap 30 menit)
     │
-    ▼
-Jalankan pantau_krs_cloud.py
+    ├─► Jika sudah ada run berjalan → ANTRE (queued) sebagai penerus
+    │       └─► Begitu run aktif selesai, penerus langsung start otomatis
     │
-    ├─► [🔑] Login otomatis dengan NIM + password
-    │         └─► Cookie PHPSESSID tersimpan di session
-    │
-    ├─► Loop: cek portal tiap 45 detik
-    │        ├─► Sesi mati? → Re-login reaktif otomatis
-    │        ├─► Tiap 5 jam → Re-login proaktif otomatis
-    │        ├─► Kuota berubah? → Kirim alert instan ke Telegram
-    │        └─► Tiap 15 menit → Kirim laporan ringkasan
-    │
-    └─► Setelah 4j55m → Exit dengan sopan (sys.exit 0)
-          │
-          └─► Cron berikutnya akan start instance baru
+    └─► Jika tidak ada run → Langsung start
+              │
+              ▼
+    Jalankan pantau_krs_cloud.py
+              │
+              ├─► [🔑] Login otomatis dengan NIM + password
+              │         └─► Cookie PHPSESSID tersimpan di session
+              │
+              ├─► Loop: cek portal tiap 45 detik
+              │        ├─► Sesi mati? → Re-login reaktif otomatis
+              │        ├─► Tiap 5 jam → Re-login proaktif otomatis
+              │        ├─► Kuota berubah? → Kirim alert instan ke Telegram
+              │        ├─► Tiap 15 menit → Kirim laporan ringkasan
+              │        └─► Error parsing? → Kirim alert, lanjut (tidak crash)
+              │
+              └─► Setelah 4j55m → Exit dengan sopan (sys.exit 0)
+                        │
+                        └─► Penerus (sudah antre) langsung start → tidak ada celah
+```
+
+> [!NOTE]
+> **Restart instan** setelah update secrets: buka tab **Actions → Run workflow**.
+> Trigger manual (`workflow_dispatch`) akan membatalkan run yang sedang berjalan
+> dan langsung memulai instance baru dengan secrets terbaru.
 ```
 
 ---

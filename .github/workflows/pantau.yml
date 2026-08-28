@@ -2,12 +2,13 @@ name: Pantau Kuota KRS Unimal
 
 on:
   schedule:
-    - cron: "0 */5 * * *"   # Setiap 5 jam (UTC); script berjalan 4j55m lalu exit
-  workflow_dispatch:          # Bisa dipicu manual dari tab Actions
+    - cron: "*/30 * * * *"   # ketuk tiap 30 menit untuk menyiapkan penerus
+  workflow_dispatch:
 
 concurrency:
-  group: pantau-krs           # Satu job aktif sekaligus
-  cancel-in-progress: true    # Job lama langsung dibatalkan jika ada job baru
+  group: pantau-kuota
+  # Manual → batalkan run lama; Cron → jangan batalkan, antre sebagai penerus
+  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' }}
 
 jobs:
   monitor:
@@ -32,4 +33,4 @@ jobs:
           UNIMAL_PASSWORD:    ${{ secrets.UNIMAL_PASSWORD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python pantau_krs_cloud.py
+        run: python -u pantau_krs_cloud.py
