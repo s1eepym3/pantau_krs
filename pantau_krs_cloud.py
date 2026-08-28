@@ -291,7 +291,7 @@ def check_quota() -> bool:
                         send_telegram(
                             f"🚨 <b>KUOTA TERSEDIA!</b>\n"
                             f"📚 {makul}\n"
-                            f"🏫 Kelas {kelas} | 👨‍ {dosen}\n"
+                            f"🏫 Kelas {kelas} | 👨‍🏫 {dosen}\n"
                             f"🔥 Sisa: <b>{kuota}</b>\n"
                             f"⚡ Ambil/pindah sekarang!"
                         )
@@ -355,10 +355,21 @@ if __name__ == "__main__":
             print("[🔑] Proaktif: re-login terjadwal tiap 5 jam.")
             login_with_retry(reason="proaktif 5 jam")
 
-        if check_quota():
-            if time.time() - last_report_time >= REPORT_INTERVAL:
-                send_telegram(build_report())
-                last_report_time = time.time()
+        # 🛡️ JARING PENGAMAN ANTI-CRASH
+        try:
+            if check_quota():
+                if time.time() - last_report_time >= REPORT_INTERVAL:
+                    send_telegram(build_report())
+                    last_report_time = time.time()
+        except Exception as e:
+            error_detail = str(e)
+            print(f"\n[🔥 CRASH ERROR] Bot mengalami error tak terduga: {error_detail}")
+            print("[🔄] Mencoba melanjutkan di iterasi berikutnya...\n")
+            send_telegram(
+                f"🔥 <b>BOT CRASH / ERROR PARSING!</b>\n\n"
+                f"<b>Penyebab:</b>\n<code>{error_detail}</code>\n\n"
+                f"⏳ Bot tidak mati! Akan mencoba melanjutkan di cek berikutnya."
+            )
 
         # Hitung sisa waktu; jangan tidur melewati batas RUN_DURATION
         remaining  = RUN_DURATION - (time.time() - start_time)
