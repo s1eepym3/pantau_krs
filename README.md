@@ -55,7 +55,7 @@ lalu tambahkan **satu per satu** keempat secret berikut:
 | `UNIMAL_NIM` | NIM kamu (contoh: `230170166`) | Digunakan untuk auto-login portal |
 | `UNIMAL_PASSWORD` | Password portal akademik kamu | Digunakan untuk auto-login portal |
 | `TELEGRAM_BOT_TOKEN` | Token bot Telegram | Dari [@BotFather](https://t.me/BotFather) |
-| `TELEGRAM_CHAT_ID` | ID chat Telegram kamu | Dari [@userinfobot](https://t.me/userinfobot) |
+| `TELEGRAM_CHAT_ID` | ID chat Telegram kamu (bisa banyak, pisahkan dengan koma) | Dari [@userinfobot](https://t.me/userinfobot), contoh: `908908992` atau `908908992,12345678` |
 
 > [!IMPORTANT]
 > Bot akan login **otomatis** menggunakan NIM + password setiap kali dijalankan.

@@ -22,7 +22,10 @@ TARGET_URL    = (
 UNIMAL_NIM         = os.environ["UNIMAL_NIM"]
 UNIMAL_PASSWORD    = os.environ["UNIMAL_PASSWORD"]
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-TELEGRAM_CHAT_ID   = os.environ["TELEGRAM_CHAT_ID"]
+
+# Mendukung multi-user dengan format dipisahkan koma (misal: "12345,67890")
+raw_chat_ids       = os.environ["TELEGRAM_CHAT_ID"]
+TELEGRAM_CHAT_IDS  = [cid.strip() for cid in raw_chat_ids.split(",") if cid.strip()]
 
 # Verifikasi sesi: string ini harus ada di HTML setelah login berhasil
 SESSION_MARKER = "MOHAMMAD HAYKHAL NASUTION"
@@ -68,17 +71,18 @@ SESSION.headers.update({
 # ============================================================
 
 def send_telegram(message):
-    url     = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "HTML"}
-    try:
-        resp   = requests.post(url, json=payload, timeout=10)
-        result = resp.json()
-        if result.get("ok"):
-            print("[✓] Telegram terkirim")
-        else:
-            print(f"[✗] DITOLAK TELEGRAM: {result.get('description')}")
-    except Exception as e:
-        print(f"[✗] Error koneksi Telegram: {e}")
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    for chat_id in TELEGRAM_CHAT_IDS:
+        payload = {"chat_id": chat_id, "text": message, "parse_mode": "HTML"}
+        try:
+            resp   = requests.post(url, json=payload, timeout=10)
+            result = resp.json()
+            if result.get("ok"):
+                print(f"[✓] Telegram terkirim ke {chat_id}")
+            else:
+                print(f"[✗] DITOLAK TELEGRAM ({chat_id}): {result.get('description')}")
+        except Exception as e:
+            print(f"[✗] Error koneksi Telegram ke {chat_id}: {e}")
 
 
 # ============================================================
