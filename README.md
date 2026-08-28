@@ -13,6 +13,7 @@ notifikasi instan ke Telegram setiap kali kuota berubah atau tersedia.
 | 🔔 Alert instan | Notifikasi langsung saat kuota berubah |
 | 📊 Laporan rutin | Ringkasan lengkap tiap **15 menit** |
 | ☁️ Cloud 24/7 | Berjalan gratis di **GitHub Actions** |
+| 🔑 Auto-Login | Login otomatis dengan NIM+password, **sesi tidak pernah kedaluwarsa** |
 | 🔐 Tanpa hardcode | Semua kredensial via **GitHub Secrets** |
 
 **Matakuliah yang dipantau:**
@@ -44,26 +45,21 @@ notifikasi instan ke Telegram setiap kali kuota berubah atau tersedia.
    git push -u origin main
    ```
 
-### Langkah 2 — Isi 3 Secrets
+### Langkah 2 — Isi 4 Secrets
 
 Buka **Settings → Secrets and variables → Actions → New repository secret**,
-lalu tambahkan tiga secret berikut:
+lalu tambahkan **satu per satu** keempat secret berikut:
 
-| Secret Name | Nilai | Cara dapat |
+| Secret Name | Nilai | Keterangan |
 |---|---|---|
-| `PHPSESSID` | Nilai cookie PHPSESSID | Lihat Langkah 3 di bawah |
+| `UNIMAL_NIM` | NIM kamu (contoh: `230170166`) | Digunakan untuk auto-login portal |
+| `UNIMAL_PASSWORD` | Password portal akademik kamu | Digunakan untuk auto-login portal |
 | `TELEGRAM_BOT_TOKEN` | Token bot Telegram | Dari [@BotFather](https://t.me/BotFather) |
 | `TELEGRAM_CHAT_ID` | ID chat Telegram kamu | Dari [@userinfobot](https://t.me/userinfobot) |
 
-#### Cara ambil PHPSESSID:
-1. Login ke portal Unimal di browser
-2. Tekan **F12** → tab **Application** (Chrome) atau **Storage** (Firefox)
-3. Pilih **Cookies** → cari `PHPSESSID`
-4. Salin nilainya
-
-> [!CAUTION]
-> **JANGAN pernah klik tombol Logout** di portal. Logout akan menginvalidasi sesi
-> dan membuat PHPSESSID tidak berlaku. Cukup tutup tab browser saja.
+> [!IMPORTANT]
+> Bot akan login **otomatis** menggunakan NIM + password setiap kali dijalankan.
+> Kamu **tidak perlu lagi menyentuh PHPSESSID** — sesi diperbarui sendiri.
 
 ### Langkah 3 — Jalankan pertama kali
 
@@ -71,7 +67,7 @@ lalu tambahkan tiga secret berikut:
 2. Pilih workflow **"Pantau Kuota KRS Unimal"**
 3. Klik **Run workflow** → **Run workflow**
 4. Tunggu beberapa detik — Telegram kamu akan menerima pesan:
-   > ☁️ **Monitoring Cloud Dimulai**
+   > ☁️ **Monitoring Cloud Dimulai** — 🔑 Auto-Login aktif
 
 Setelah pesan tersebut masuk, monitoring cloud sudah aktif.
 
@@ -109,7 +105,12 @@ Cron GitHub Actions (setiap 5 jam UTC)
     ▼
 Jalankan pantau_krs_cloud.py
     │
+    ├─► [🔑] Login otomatis dengan NIM + password
+    │         └─► Cookie PHPSESSID tersimpan di session
+    │
     ├─► Loop: cek portal tiap 45 detik
+    │        ├─► Sesi mati? → Re-login reaktif otomatis
+    │        ├─► Tiap 5 jam → Re-login proaktif otomatis
     │        ├─► Kuota berubah? → Kirim alert instan ke Telegram
     │        └─► Tiap 15 menit → Kirim laporan ringkasan
     │
@@ -122,18 +123,18 @@ Jalankan pantau_krs_cloud.py
 
 ## 🛠️ Troubleshooting
 
-### ⚠️ "Sesi login portal habis"
-Bot mengirim notifikasi ini ketika string nama tidak ditemukan di HTML response.
+### 🚨 "AUTO-LOGIN GAGAL"
+Bot mengirim notifikasi ini ketika login dengan NIM + password gagal setelah 3 kali percobaan.
 
-**Solusi:**
-1. Login ke portal Unimal di browser
-2. Ambil nilai `PHPSESSID` terbaru (F12 → Application → Cookies)
-3. Perbarui secret `PHPSESSID` di **Settings → Secrets and variables → Actions**
-4. Trigger workflow manual: tab **Actions → Run workflow**
+**Kemungkinan penyebab & solusi:**
 
-> [!CAUTION]
-> **JANGAN klik Logout di portal** — ini akan menginvalidasi PHPSESSID yang sedang
-> digunakan bot. Cukup tutup tab saja.
+| Penyebab | Solusi |
+|---|---|
+| NIM/password salah di Secrets | Update secret `UNIMAL_NIM` atau `UNIMAL_PASSWORD` |
+| Portal sedang down/maintenance | Bot akan retry otomatis tiap 5 menit, tidak perlu tindakan |
+| Portal mengubah struktur form login | Buka issue di repo atau cek log Actions untuk detailnya |
+
+Setelah update secret: buka **Actions → Run workflow** untuk restart bot.
 
 ### ❌ Workflow tidak jalan padahal sudah di-push
 - Pastikan file workflow ada di path: `.github/workflows/pantau.yml`

@@ -28,7 +28,8 @@ jobs:
 
       - name: Jalankan monitoring kuota
         env:
-          PHPSESSID:          ${{ secrets.PHPSESSID }}
+          UNIMAL_NIM:         ${{ secrets.UNIMAL_NIM }}
+          UNIMAL_PASSWORD:    ${{ secrets.UNIMAL_PASSWORD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python pantau_krs_cloud.py
