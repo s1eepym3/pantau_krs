@@ -12,7 +12,7 @@ TARGET_URL = "http://portal.unimal.ac.id/index.php?pModule=0dWjo6almcqQmdGapaeW1
 
 # Cookie TIDAK perlu diganti (PHPSESSID berlaku seluruh portal). Ganti hanya jika sesi kedaluwarsa.
 COOKIES = {
-    "PHPSESSID": "7c59771b4b1cf52805085ed4023ae7e7"
+    "PHPSESSID": "ISI_COOKIE_PHPSESSID_DISINI"
 }
 
 # Matakuliah yang dipantau — tambah/kurangi sesuai kebutuhan
@@ -23,8 +23,8 @@ TARGET_MAKUL = [
     "CAPSTONE PROJECT",          # sudah diambil (pantau untuk pindah kelas)
 ]
 
-TELEGRAM_BOT_TOKEN = "8626487106:AAFgUrB1V-jnMJu8HwZ4FlFDFrpW5KbxaGo"
-TELEGRAM_CHAT_ID = "908908992"
+TELEGRAM_BOT_TOKEN = "ISI_BOT_TOKEN_DISINI"
+TELEGRAM_CHAT_ID = "ISI_CHAT_ID_DISINI"
 
 CHECK_INTERVAL = 45      # Refresh belakang layar tiap 15 detik
 REPORT_INTERVAL = 900    # Laporan rutin tiap 15 menit (20 mnt = 1200, 30 mnt = 1800)
